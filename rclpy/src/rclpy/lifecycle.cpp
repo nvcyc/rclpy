@@ -34,6 +34,7 @@
 #include <tuple>
 #include <vector>
 
+#include "clock.hpp"
 #include "destroyable.hpp"
 #include "exceptions.hpp"
 #include "lifecycle.hpp"
@@ -50,7 +51,7 @@ class LifecycleStateMachine : public rclpy::Destroyable,
 public:
   LifecycleStateMachine(
     rclpy::Node & node, bool enable_com_interface)
-  : node_(node)
+  : node_(node), clock_(RCL_SYSTEM_TIME)
   {
     state_machine_ = std::shared_ptr<rcl_lifecycle_state_machine_t>(
       new rcl_lifecycle_state_machine_t(rcl_lifecycle_get_zero_initialized_state_machine()),
@@ -70,6 +71,7 @@ public:
     rcl_ret_t ret = rcl_lifecycle_state_machine_init(
       state_machine_.get(),
       node_.rcl_ptr(),
+      clock_.rcl_ptr(),
       ROSIDL_GET_MSG_TYPE_SUPPORT(lifecycle_msgs, msg, TransitionEvent),
       ROSIDL_GET_SRV_TYPE_SUPPORT(lifecycle_msgs, srv, ChangeState),
       ROSIDL_GET_SRV_TYPE_SUPPORT(lifecycle_msgs, srv, GetState),
@@ -118,6 +120,7 @@ public:
     srv_get_available_states_.reset();
     srv_get_available_transitions_.reset();
     srv_get_transition_graph_.reset();
+    clock_.destroy();
     node_.destroy();
   }
 
@@ -268,6 +271,7 @@ public:
 
 private:
   rclpy::Node node_;
+  rclpy::Clock clock_;
   std::shared_ptr<rclpy::Service> srv_change_state_;
   std::shared_ptr<rclpy::Service> srv_get_state_;
   std::shared_ptr<rclpy::Service> srv_get_available_states_;
