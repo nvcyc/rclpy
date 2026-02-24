@@ -1645,7 +1645,8 @@ class Node:
         event_callbacks: Optional[SubscriptionEventCallbacks] = None,
         qos_overriding_options: Optional[QoSOverridingOptions] = None,
         raw: Literal[True],
-        content_filter_options: Optional[ContentFilterOptions] = None
+        content_filter_options: Optional[ContentFilterOptions] = None,
+        acceptable_buffer_backends: Optional[str] = None
     ) -> Subscription[MsgT]: ...
 
     @overload
@@ -1660,7 +1661,8 @@ class Node:
         event_callbacks: Optional[SubscriptionEventCallbacks] = None,
         qos_overriding_options: Optional[QoSOverridingOptions] = None,
         raw: bool = False,
-        content_filter_options: Optional[ContentFilterOptions] = None
+        content_filter_options: Optional[ContentFilterOptions] = None,
+        acceptable_buffer_backends: Optional[str] = None
     ) -> Subscription[MsgT]: ...
 
     def create_subscription(
@@ -1674,7 +1676,8 @@ class Node:
         event_callbacks: Optional[SubscriptionEventCallbacks] = None,
         qos_overriding_options: Optional[QoSOverridingOptions] = None,
         raw: bool = False,
-        content_filter_options: Optional[ContentFilterOptions] = None
+        content_filter_options: Optional[ContentFilterOptions] = None,
+        acceptable_buffer_backends: Optional[str] = None
     ) -> Subscription[MsgT]:
         """
         Create a new subscription.
@@ -1693,6 +1696,9 @@ class Node:
         :param raw: If ``True``, then received messages will be stored in raw binary
             representation.
         :param content_filter_options: The filter expression and parameters for content filtering.
+        :param acceptable_buffer_backends: Comma-separated list of acceptable buffer backend
+            names. ``None`` or empty means all installed backends (default). ``"cpu"`` restricts
+            to CPU-backed buffers only. CPU is always implicitly acceptable.
         """
         qos_profile = self._validate_qos_or_depth_parameter(qos_profile)
 
@@ -1721,7 +1727,7 @@ class Node:
             with self.handle:
                 subscription_object = _rclpy.Subscription(
                     self.handle, msg_type, topic, qos_profile.get_c_qos_profile(),
-                    content_filter_options)
+                    content_filter_options, acceptable_buffer_backends)
         except ValueError:
             failed = True
         if failed:
