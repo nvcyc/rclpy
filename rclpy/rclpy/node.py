@@ -1646,7 +1646,7 @@ class Node:
         qos_overriding_options: Optional[QoSOverridingOptions] = None,
         raw: Literal[True],
         content_filter_options: Optional[ContentFilterOptions] = None,
-        acceptable_buffer_backends: Optional[str] = None
+        acceptable_buffer_backends: Optional[str] = 'cpu'
     ) -> Subscription[MsgT]: ...
 
     @overload
@@ -1662,7 +1662,7 @@ class Node:
         qos_overriding_options: Optional[QoSOverridingOptions] = None,
         raw: bool = False,
         content_filter_options: Optional[ContentFilterOptions] = None,
-        acceptable_buffer_backends: Optional[str] = None
+        acceptable_buffer_backends: Optional[str] = 'cpu'
     ) -> Subscription[MsgT]: ...
 
     def create_subscription(
@@ -1677,7 +1677,7 @@ class Node:
         qos_overriding_options: Optional[QoSOverridingOptions] = None,
         raw: bool = False,
         content_filter_options: Optional[ContentFilterOptions] = None,
-        acceptable_buffer_backends: Optional[str] = None
+        acceptable_buffer_backends: Optional[str] = 'cpu'
     ) -> Subscription[MsgT]:
         """
         Create a new subscription.
@@ -1697,8 +1697,9 @@ class Node:
             representation.
         :param content_filter_options: The filter expression and parameters for content filtering.
         :param acceptable_buffer_backends: Comma-separated list of acceptable buffer backend
-            names. ``None`` or empty means all installed backends (default). ``"cpu"`` restricts
-            to CPU-backed buffers only. CPU is always implicitly acceptable.
+            names. ``None``, empty, or ``"cpu"`` all mean CPU-only (default for backward
+            compatibility). ``"any"`` means all installed backends are acceptable.
+            CPU is always implicitly acceptable.
         """
         qos_profile = self._validate_qos_or_depth_parameter(qos_profile)
 
